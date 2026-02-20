@@ -214,6 +214,19 @@ function getLocale() {
 // ---- Initialize MSAL ----
 const msalInstance = new msal.PublicClientApplication(msalConfig);
 
+// ---- MSAL popup callback guard ----
+// When using loginPopup/acquireTokenPopup, the redirect page loads inside a popup.
+// We MUST prevent the full app from running inside that popup; otherwise MSAL blocks "nested popups".
+const IS_MSAL_POPUP = !!window.opener && !!window.name && window.name.toLowerCase().includes("msal");
+
+if (IS_MSAL_POPUP) {
+  msalInstance.handleRedirectPromise()
+    .then(() => window.close())
+    .catch(() => window.close());
+} else {
+
+
+
 // ---- App state (for re-render without refetch) ----
 const state = { profile: null, emails: null, events: null, files: null };
 let demoMode = false;
@@ -675,3 +688,5 @@ function getFileIcon(filename) {
   };
   return icons[ext] || "📄";
 }
+
+} // end IS_MSAL_POPUP guard
