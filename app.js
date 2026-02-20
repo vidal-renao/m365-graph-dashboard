@@ -16,6 +16,9 @@ const loginRequest = {
   scopes: ["User.Read", "Mail.Read", "Calendars.Read", "Files.Read.All"]
 };
 
+// ---- Environment detection ----
+const IS_GITHUB_PAGES = location.hostname.includes("github.io");
+
 // ---- i18n (ES / EN / DE) ----
 const LANG_DEFAULT = "es"; // ES, EN, DE (in this order)
 
@@ -267,9 +270,13 @@ document.addEventListener("DOMContentLoaded", () => {
   demoButton?.addEventListener("click", startDemo);
 
   // Check session AFTER everything is ready
-  checkAccount();
+  if (IS_GITHUB_PAGES) {
+    // Auto-demo on GitHub Pages (no login required)
+    startDemo();
+  } else {
+    checkAccount();
+  }
 });
-
 // ---- UI helpers ----
 function showContent() {
   loginSection.style.display = "none";
@@ -402,6 +409,11 @@ function startDemo() {
 }
 
 async function login() {
+  if (IS_GITHUB_PAGES) {
+    // On GitHub Pages we run in demo mode to avoid redirect URI issues.
+    startDemo();
+    return;
+  }
   try {
     const loginResponse = await msalInstance.loginPopup(loginRequest);
     console.log("Login successful:", loginResponse);
