@@ -1,64 +1,77 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Microsoft 365 Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Microsoft 365 Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🚀 My Microsoft 365 Dashboard</h1>
-            <p class="subtitle">Conecta con tu cuenta de Microsoft y explora tus datos</p>
-        </header>
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <h1 id="app-title">🚀 My Microsoft 365 Dashboard</h1>
 
-        <div id="login-section" class="section">
-            <button id="login-button" class="btn-primary">
-                🔐 Iniciar Sesión con Microsoft
-            </button>
+        <div class="lang-control" aria-label="Language selector">
+          <select id="lang-select" title="Language">
+            <option value="es">ES</option>
+            <option value="en">EN</option>
+            <option value="de">DE</option>
+          </select>
         </div>
+      </div>
 
-        <div id="content" style="display: none;">
-            <div class="welcome-section">
-                <h2>¡Bienvenido! <span id="user-name"></span></h2>
-                <button id="logout-button" class="btn-secondary">Cerrar Sesión</button>
-            </div>
+      <p id="app-subtitle" class="subtitle"></p>
+    </header>
 
-            <!-- Profile Section -->
-            <div class="card">
-                <h3>👤 Mi Perfil</h3>
-                <div id="profile-section" class="loading">Cargando perfil...</div>
-            </div>
-
-            <!-- Email Section -->
-            <div class="card">
-                <h3>📧 Últimos Emails</h3>
-                <div id="email-section" class="loading">Cargando emails...</div>
-            </div>
-
-            <!-- Calendar Section -->
-            <div class="card">
-                <h3>📅 Próximos Eventos</h3>
-                <div id="calendar-section" class="loading">Cargando calendario...</div>
-            </div>
-
-            <!-- Files Section -->
-            <div class="card">
-                <h3>📁 Archivos Recientes</h3>
-                <div id="files-section" class="loading">Cargando archivos...</div>
-            </div>
-        </div>
-
-        <footer>
-            <p>💡 Proyecto de demostración - Microsoft Graph API</p>
-            <p class="small">Usando MSAL.js 2.0 para autenticación</p>
-        </footer>
+    <div id="login-section" class="section">
+      <button id="login-button" class="btn-primary"></button>
+      <div class="login-actions">
+        <button id="demo-button" class="btn-secondary" type="button"></button>
+      </div>
     </div>
 
-    <!-- MSAL Library -->
-    <script src="https://alcdn.msauth.net/browser/2.38.1/js/msal-browser.min.js"></script>
-    <!-- App Script -->
-    <script src="app.js"></script>
+    <div id="content" style="display: none;">
+      <div class="welcome-section">
+        <h2><span id="welcome-text"></span> <span id="user-name"></span></h2>
+        <button id="logout-button" class="btn-secondary"></button>
+      </div>
+      <div id="demo-banner" class="demo-banner" style="display:none;"></div>
+
+      <div class="card">
+        <h3 id="profile-title"></h3>
+        <div id="profile-section" class="loading"></div>
+      </div>
+      <div id="demo-banner" class="demo-banner" style="display:none;"></div>
+
+      <div class="card">
+        <h3 id="email-title"></h3>
+        <div id="email-section" class="loading"></div>
+      </div>
+      <div id="demo-banner" class="demo-banner" style="display:none;"></div>
+
+      <div class="card">
+        <h3 id="calendar-title"></h3>
+        <div id="calendar-section" class="loading"></div>
+      </div>
+      <div id="demo-banner" class="demo-banner" style="display:none;"></div>
+
+      <div class="card">
+        <h3 id="files-title"></h3>
+        <div id="files-section" class="loading"></div>
+      </div>
+    </div>
+
+    <footer>
+      <p id="footer-line1"></p>
+      <p id="footer-line2" class="small"></p>
+    </footer>
+  </div>
+
+  <!-- MSAL Library -->
+  <script src="https://alcdn.msauth.net/browser/2.38.1/js/msal-browser.min.js"></script>
+
+  <!-- App Script (defer = runs after DOM is parsed) -->
+  <script defer src="app.js"></script>
 </body>
 </html>
