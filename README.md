@@ -13,15 +13,17 @@ Desarrollada con **JavaScript puro** y **MSAL.js** para autenticación segura.
 ### ✨ Funcionalidades
 - 🔐 Autenticación OAuth 2.0 con MSAL.js  
 - 👤 Perfil de usuario (nombre, email, puesto, ubicación)  
+- 📊 **Quick Stats** (emails no leídos, próximo evento, archivos recientes, última actualización)  
 - 📧 Últimos correos electrónicos  
 - 📅 Próximos eventos del calendario (7 días)  
 - 📁 Archivos recientes de OneDrive  
-- 🌍 Interfaz multi‑idioma (ES / EN / DE)  
+- 🌍 Interfaz multi-idioma (ES / EN / DE)  
 - 🎨 UI moderna y responsive  
 
 ### 📸 Capturas
 ![Login](screenshots/login.png)
 ![Perfil](screenshots/profile.png)
+![Quick Stats](screenshots/quick-stats.png)
 ![Emails](screenshots/emails.png)
 ![Calendario](screenshots/calendar.png)
 ![Archivos](screenshots/files.png)
@@ -30,7 +32,7 @@ Desarrollada con **JavaScript puro** y **MSAL.js** para autenticación segura.
 ### 🚀 Uso
 ```bash
 python -m http.server 8080
-```
+
 Abrir: http://localhost:8080
 
 ---
