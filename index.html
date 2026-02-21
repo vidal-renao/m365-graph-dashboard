@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Microsoft 365 Dashboard</title>
-  <link rel="stylesheet" href="styles.css" />
+  <!-- Cache-busting during development: bump v when you change CSS/JS -->
+  <link rel="stylesheet" href="styles.css?v=1.2" />
 </head>
 <body>
   <div class="container">
@@ -26,36 +27,48 @@
 
     <div id="login-section" class="section">
       <button id="login-button" class="btn-primary"></button>
-      <div class="login-actions">
-        <button id="demo-button" class="btn-secondary" type="button"></button>
-      </div>
+      <div style="margin-top: 14px;"></div>
+      <button id="demo-button" class="btn-secondary" type="button"></button>
     </div>
 
     <div id="content" style="display: none;">
       <div class="welcome-section">
         <h2><span id="welcome-text"></span> <span id="user-name"></span></h2>
-        <button id="logout-button" class="btn-secondary"></button>
+        <button id="logout-button" class="btn-secondary" type="button"></button>
       </div>
-      <div id="demo-banner" class="demo-banner" style="display:none;"></div>
 
+      <div id="demo-banner" class="card" style="display:none;"></div>
+
+      <!-- Quick Stats -->
+      <div class="card">
+        <h3 id="stats-title"></h3>
+        <div class="profile-info" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+          <p><strong id="stat-unread-label"></strong><br><span id="stat-unread-value">—</span></p>
+          <p><strong id="stat-next-event-label"></strong><br><span id="stat-next-event-value">—</span></p>
+          <p><strong id="stat-recent-files-label"></strong><br><span id="stat-recent-files-value">—</span></p>
+          <p><strong id="stat-updated-label"></strong><br><span id="stat-updated-value">—</span></p>
+        </div>
+      </div>
+
+      <!-- Profile -->
       <div class="card">
         <h3 id="profile-title"></h3>
         <div id="profile-section" class="loading"></div>
       </div>
-      <div id="demo-banner" class="demo-banner" style="display:none;"></div>
 
+      <!-- Emails -->
       <div class="card">
         <h3 id="email-title"></h3>
         <div id="email-section" class="loading"></div>
       </div>
-      <div id="demo-banner" class="demo-banner" style="display:none;"></div>
 
+      <!-- Calendar -->
       <div class="card">
         <h3 id="calendar-title"></h3>
         <div id="calendar-section" class="loading"></div>
       </div>
-      <div id="demo-banner" class="demo-banner" style="display:none;"></div>
 
+      <!-- Files -->
       <div class="card">
         <h3 id="files-title"></h3>
         <div id="files-section" class="loading"></div>
@@ -71,7 +84,7 @@
   <!-- MSAL Library -->
   <script src="https://alcdn.msauth.net/browser/2.38.1/js/msal-browser.min.js"></script>
 
-  <!-- App Script (defer = runs after DOM is parsed) -->
-  <script defer src="app.js"></script>
+  <!-- App Script -->
+  <script defer src="app.js?v=1.2"></script>
 </body>
 </html>

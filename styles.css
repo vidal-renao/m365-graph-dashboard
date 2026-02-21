@@ -460,3 +460,41 @@ footer p {
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     font-weight: 600;
 }
+/* Quick Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.stat-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+  border-left: 4px solid #667eea;
+}
+
+.stat-value {
+  font-size: 1.7em;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  color: #667eea;
+  font-weight: 700;
+  font-size: 0.95em;
+}
+
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

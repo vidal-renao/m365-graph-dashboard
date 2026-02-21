@@ -1,0 +1,20 @@
+# Visual Studio
+.vs/
+*.sln
+*.slnx
+
+# VS caches
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+FileContentIndex/
+VSWorkspaceState.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files
+*-old.*
+*.old.*

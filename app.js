@@ -1,9 +1,11 @@
-// Configuration for MSAL (Microsoft Authentication Library)
+// Microsoft 365 Dashboard (MSAL + Microsoft Graph) - ES/EN/DE + Quick Stats + GitHub Pages demo mode
+
+// -------------------- MSAL configuration --------------------
 const msalConfig = {
   auth: {
     clientId: "58d4f2d3-5598-401e-a2ff-a01806d304e7",
     authority: "https://login.microsoftonline.com/common",
-    redirectUri: "http://localhost:8080"
+    redirectUri: "http://localhost:8080" // local dev (GitHub Pages runs demo mode)
   },
   cache: {
     cacheLocation: "localStorage",
@@ -16,10 +18,28 @@ const loginRequest = {
   scopes: ["User.Read", "Mail.Read", "Calendars.Read", "Files.Read.All"]
 };
 
-// ---- Environment detection ----
+// Environment detection
 const IS_GITHUB_PAGES = location.hostname.includes("github.io");
 
-// ---- i18n (ES / EN / DE) ----
+// Initialize MSAL
+const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+// -------------------- Guard: avoid running full app inside MSAL popup --------------------
+// With loginPopup/acquireTokenPopup, MSAL opens a popup and navigates it.
+// We must not run our whole dashboard inside that popup (MSAL blocks nested popups).
+const IS_MSAL_POPUP =
+  !!window.opener &&
+  (String(window.name || "").toLowerCase().includes("msal") || location.hash.includes("code="));
+
+if (IS_MSAL_POPUP) {
+  // Let MSAL finish processing then close the popup.
+  msalInstance
+    .handleRedirectPromise()
+    .finally(() => window.close());
+  // Stop here.
+} else {
+
+// -------------------- i18n --------------------
 const LANG_DEFAULT = "es"; // ES, EN, DE (in this order)
 
 const i18n = {
@@ -40,6 +60,7 @@ const i18n = {
     footer1: "💡 Proyecto de demostración - Microsoft Graph API",
     footer2: "Usando MSAL.js 2.0 para autenticación",
 
+    // labels
     name: "Nombre",
     email: "Email",
     jobTitle: "Puesto",
@@ -49,11 +70,14 @@ const i18n = {
     unknown: "Desconocido",
     na: "N/A",
 
+    // empty states
     noEmails: "No hay emails recientes",
     noFiles: "No hay archivos recientes",
     noEvents7: "No hay eventos próximos en los próximos 7 días",
     noAuthUser: "No hay usuario autenticado",
+    none: "Ninguno",
 
+    // errors
     errLogin: "Error al iniciar sesión",
     errLoad: "Error al cargar los datos",
     errProfile: "❌ Error al cargar el perfil",
@@ -61,11 +85,12 @@ const i18n = {
     errCalendar: "❌ Error al cargar calendario",
     errFiles: "❌ Error al cargar archivos (puede que no tengas OneDrive configurado)",
 
+    // fallbacks
     noSubject: "(Sin asunto)",
     noTitle: "(Sin título)",
-    userFallback: "Usuario"
-  
-,
+    userFallback: "Usuario",
+
+    // demo
     demoButton: "👀 Ver demo (sin login)",
     demoBanner: "Estás viendo el modo demo. Inicia sesión para ver tus datos reales.",
     demoUserName: "Usuario Demo",
@@ -77,7 +102,14 @@ const i18n = {
     demoEvent1: "Revisión de redes (Demo)",
     demoEvent2: "Prep entrevista: Azure / M365 (Demo)",
     demoEventLoc1: "Teams (Demo)",
-    demoEventLoc2: "Oficina (Demo)"
+    demoEventLoc2: "Oficina (Demo)",
+
+    // quick stats
+    statsTitle: "📊 Estadísticas rápidas",
+    statUnread: "Correos sin leer",
+    statNextEvent: "Próximo evento",
+    statRecentFiles: "Archivos recientes (48h)",
+    statUpdated: "Última actualización"
   },
   en: {
     title: "🚀 My Microsoft 365 Dashboard",
@@ -109,6 +141,7 @@ const i18n = {
     noFiles: "No recent files",
     noEvents7: "No upcoming events in the next 7 days",
     noAuthUser: "No authenticated user",
+    none: "None",
 
     errLogin: "Login error",
     errLoad: "Error loading data",
@@ -119,9 +152,8 @@ const i18n = {
 
     noSubject: "(No subject)",
     noTitle: "(No title)",
-    userFallback: "User"
-  
-,
+    userFallback: "User",
+
     demoButton: "👀 View demo (no login)",
     demoBanner: "You are viewing demo mode. Sign in to see your real data.",
     demoUserName: "Demo User",
@@ -133,7 +165,13 @@ const i18n = {
     demoEvent1: "Network review (Demo)",
     demoEvent2: "Interview prep: Azure / M365 (Demo)",
     demoEventLoc1: "Teams (Demo)",
-    demoEventLoc2: "Office (Demo)"
+    demoEventLoc2: "Office (Demo)",
+
+    statsTitle: "📊 Quick Stats",
+    statUnread: "Unread emails",
+    statNextEvent: "Next event",
+    statRecentFiles: "Recent files (48h)",
+    statUpdated: "Last updated"
   },
   de: {
     title: "🚀 My Microsoft 365 Dashboard",
@@ -165,6 +203,7 @@ const i18n = {
     noFiles: "Keine aktuellen Dateien",
     noEvents7: "Keine Termine in den nächsten 7 Tagen",
     noAuthUser: "Kein authentifizierter Benutzer",
+    none: "Keine",
 
     errLogin: "Anmeldefehler",
     errLoad: "Fehler beim Laden der Daten",
@@ -175,9 +214,8 @@ const i18n = {
 
     noSubject: "(Kein Betreff)",
     noTitle: "(Kein Titel)",
-    userFallback: "Benutzer"
-  
-,
+    userFallback: "Benutzer",
+
     demoButton: "👀 Demo ansehen (ohne Login)",
     demoBanner: "Du siehst den Demo-Modus. Melde dich an, um deine echten Daten zu sehen.",
     demoUserName: "Demo-Benutzer",
@@ -189,21 +227,30 @@ const i18n = {
     demoEvent1: "Netzwerk-Review (Demo)",
     demoEvent2: "Interview-Vorbereitung: Azure / M365 (Demo)",
     demoEventLoc1: "Teams (Demo)",
-    demoEventLoc2: "Büro (Demo)"
+    demoEventLoc2: "Büro (Demo)",
+
+    statsTitle: "📊 Schnellübersicht",
+    statUnread: "Ungelesene E-Mails",
+    statNextEvent: "Nächster Termin",
+    statRecentFiles: "Letzte Dateien (48 Std.)",
+    statUpdated: "Zuletzt aktualisiert"
   }
 };
 
 function getLang() {
   return localStorage.getItem("lang") || LANG_DEFAULT;
 }
+
 function setLang(lang) {
   localStorage.setItem("lang", lang);
-  document.documentElement.lang = getLocale(); // es-ES/en-US/de-DE
+  document.documentElement.lang = lang;
 }
+
 function t(key) {
   const lang = getLang();
   return (i18n[lang] && i18n[lang][key]) ? i18n[lang][key] : (i18n[LANG_DEFAULT][key] || key);
 }
+
 function getLocale() {
   const lang = getLang();
   if (lang === "de") return "de-DE";
@@ -211,42 +258,40 @@ function getLocale() {
   return "es-ES";
 }
 
-// ---- Initialize MSAL ----
-const msalInstance = new msal.PublicClientApplication(msalConfig);
+// -------------------- State --------------------
+const state = {
+  profile: null,
+  emails: null,
+  events: null,
+  files: null,
+  _lastUpdated: null
+};
 
-// ---- MSAL popup callback guard ----
-// When using loginPopup/acquireTokenPopup, the redirect page loads inside a popup.
-// We MUST prevent the full app from running inside that popup; otherwise MSAL blocks "nested popups".
-const IS_MSAL_POPUP = !!window.opener && !!window.name && window.name.toLowerCase().includes("msal");
-
-if (IS_MSAL_POPUP) {
-  msalInstance.handleRedirectPromise()
-    .then(() => window.close())
-    .catch(() => window.close());
-} else {
-
-
-
-// ---- App state (for re-render without refetch) ----
-const state = { profile: null, emails: null, events: null, files: null };
 let demoMode = false;
 
-// ---- DOM refs (initialized on DOMContentLoaded) ----
+// -------------------- DOM refs --------------------
 let loginButton, logoutButton, demoButton, loginSection, content, userName;
 let demoBanner;
 let profileSection, emailSection, calendarSection, filesSection;
+
 let appTitleEl, appSubtitleEl, welcomeTextEl, profileTitleEl, emailTitleEl, calendarTitleEl, filesTitleEl, footer1El, footer2El, langSelect;
 
-// ---- DOM Ready ----
+// Quick stats DOM refs
+let statsTitleEl, statUnreadLabelEl, statNextEventLabelEl, statRecentFilesLabelEl, statUpdatedLabelEl;
+let statUnreadValueEl, statNextEventValueEl, statRecentFilesValueEl, statUpdatedValueEl;
+
+// -------------------- DOM Ready --------------------
 document.addEventListener("DOMContentLoaded", () => {
-  // Bind elements safely
+  // Bind elements
   loginButton = document.getElementById("login-button");
   logoutButton = document.getElementById("logout-button");
   demoButton = document.getElementById("demo-button");
-  demoBanner = document.getElementById("demo-banner");
+
   loginSection = document.getElementById("login-section");
   content = document.getElementById("content");
   userName = document.getElementById("user-name");
+
+  demoBanner = document.getElementById("demo-banner");
 
   profileSection = document.getElementById("profile-section");
   emailSection = document.getElementById("email-section");
@@ -264,7 +309,18 @@ document.addEventListener("DOMContentLoaded", () => {
   footer2El = document.getElementById("footer-line2");
   langSelect = document.getElementById("lang-select");
 
-  // Language init
+  statsTitleEl = document.getElementById("stats-title");
+  statUnreadLabelEl = document.getElementById("stat-unread-label");
+  statNextEventLabelEl = document.getElementById("stat-next-event-label");
+  statRecentFilesLabelEl = document.getElementById("stat-recent-files-label");
+  statUpdatedLabelEl = document.getElementById("stat-updated-label");
+
+  statUnreadValueEl = document.getElementById("stat-unread-value");
+  statNextEventValueEl = document.getElementById("stat-next-event-value");
+  statRecentFilesValueEl = document.getElementById("stat-recent-files-value");
+  statUpdatedValueEl = document.getElementById("stat-updated-value");
+
+  // Language selector init
   const currentLang = getLang();
   if (langSelect) {
     langSelect.value = currentLang;
@@ -272,53 +328,72 @@ document.addEventListener("DOMContentLoaded", () => {
       setLang(langSelect.value);
       applyTranslations();
       rerenderAll();
+      renderStats();
     });
   }
   setLang(currentLang);
-  applyTranslations();
 
-  // Events (only when DOM exists!)
+  // Events
   loginButton?.addEventListener("click", login);
   logoutButton?.addEventListener("click", logout);
   demoButton?.addEventListener("click", startDemo);
 
-  // Check session AFTER everything is ready
+  // Initial render
+  applyTranslations();
+  hideContent();
+  renderStats();
+
+  // Start
   if (IS_GITHUB_PAGES) {
-    // Auto-demo on GitHub Pages (no login required)
+    // Auto-demo on GitHub Pages to avoid redirect URI config
     startDemo();
   } else {
     checkAccount();
   }
 });
-// ---- UI helpers ----
+
+// -------------------- UI helpers --------------------
 function showContent() {
-  loginSection.style.display = "none";
-  content.style.display = "block";
+  if (loginSection) loginSection.style.display = "none";
+  if (content) content.style.display = "block";
 }
+
 function hideContent() {
-  loginSection.style.display = "block";
-  content.style.display = "none";
+  if (loginSection) loginSection.style.display = "block";
+  if (content) content.style.display = "none";
 }
 
 function applyTranslations() {
   document.title = "My Microsoft 365 Dashboard";
 
-  appTitleEl && (appTitleEl.textContent = t("title"));
-  appSubtitleEl && (appSubtitleEl.textContent = t("subtitle"));
-  loginButton && (loginButton.textContent = t("login"));
-  logoutButton && (logoutButton.textContent = t("logout"));
-  demoButton && (demoButton.textContent = t("demoButton"));
-  if (demoBanner && demoBanner.style.display !== "none") demoBanner.textContent = t("demoBanner");
-  welcomeTextEl && (welcomeTextEl.textContent = t("welcome"));
+  if (appTitleEl) appTitleEl.textContent = t("title");
+  if (appSubtitleEl) appSubtitleEl.textContent = t("subtitle");
 
-  profileTitleEl && (profileTitleEl.textContent = t("profileTitle"));
-  emailTitleEl && (emailTitleEl.textContent = t("emailsTitle"));
-  calendarTitleEl && (calendarTitleEl.textContent = t("calendarTitle"));
-  filesTitleEl && (filesTitleEl.textContent = t("filesTitle"));
+  if (loginButton) loginButton.textContent = t("login");
+  if (logoutButton) logoutButton.textContent = t("logout");
+  if (demoButton) demoButton.textContent = t("demoButton");
 
-  footer1El && (footer1El.textContent = t("footer1"));
-  footer2El && (footer2El.textContent = t("footer2"));
+  if (welcomeTextEl) welcomeTextEl.textContent = t("welcome");
 
+  if (statsTitleEl) statsTitleEl.textContent = t("statsTitle");
+  if (statUnreadLabelEl) statUnreadLabelEl.textContent = t("statUnread");
+  if (statNextEventLabelEl) statNextEventLabelEl.textContent = t("statNextEvent");
+  if (statRecentFilesLabelEl) statRecentFilesLabelEl.textContent = t("statRecentFiles");
+  if (statUpdatedLabelEl) statUpdatedLabelEl.textContent = t("statUpdated");
+
+  if (demoBanner && demoBanner.style.display !== "none") {
+    demoBanner.textContent = t("demoBanner");
+  }
+
+  if (profileTitleEl) profileTitleEl.textContent = t("profileTitle");
+  if (emailTitleEl) emailTitleEl.textContent = t("emailsTitle");
+  if (calendarTitleEl) calendarTitleEl.textContent = t("calendarTitle");
+  if (filesTitleEl) filesTitleEl.textContent = t("filesTitle");
+
+  if (footer1El) footer1El.textContent = t("footer1");
+  if (footer2El) footer2El.textContent = t("footer2");
+
+  // Placeholders only if not loaded yet
   if (!state.profile && profileSection) profileSection.textContent = t("loadingProfile");
   if (!state.emails && emailSection) emailSection.textContent = t("loadingEmails");
   if (!state.events && calendarSection) calendarSection.textContent = t("loadingCalendar");
@@ -332,106 +407,69 @@ function rerenderAll() {
   if (state.files) renderFiles(state.files);
 }
 
-// ---- Auth ----
+function renderStats() {
+  const locale = getLocale();
+
+  // 1) Unread emails
+  const emails = state.emails || [];
+  const unreadCount = emails.filter(e => e && e.isRead === false).length;
+  if (statUnreadValueEl) statUnreadValueEl.textContent = state.emails ? String(unreadCount) : "—";
+
+  // 2) Next event
+  const events = (state.events || []).slice().sort((a, b) => {
+    const da = new Date(a?.start?.dateTime || 0).getTime();
+    const db = new Date(b?.start?.dateTime || 0).getTime();
+    return da - db;
+  });
+  const next = events[0];
+  const nextText = next?.start?.dateTime
+    ? new Date(next.start.dateTime).toLocaleString(locale)
+    : (state.events ? t("none") : "—");
+  if (statNextEventValueEl) statNextEventValueEl.textContent = nextText;
+
+  // 3) Recent files (last 48h)
+  const files = state.files || [];
+  const now = Date.now();
+  const recent48h = files.filter(f => {
+    const dt = f?.lastModifiedDateTime ? new Date(f.lastModifiedDateTime).getTime() : 0;
+    return dt && (now - dt) <= (48 * 60 * 60 * 1000);
+  }).length;
+  if (statRecentFilesValueEl) statRecentFilesValueEl.textContent = state.files ? String(recent48h) : "—";
+
+  // 4) Last updated
+  if (statUpdatedValueEl) {
+    statUpdatedValueEl.textContent = state._lastUpdated
+      ? new Date(state._lastUpdated).toLocaleString(locale)
+      : "—";
+  }
+}
+
+// -------------------- Auth --------------------
 async function checkAccount() {
-  const currentAccounts = msalInstance.getAllAccounts();
-  if (currentAccounts.length > 0) {
-    // Ensure texts (logout button etc.) are applied even on auto-login
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length > 0) {
     demoMode = false;
     if (demoBanner) demoBanner.style.display = "none";
     applyTranslations();
     showContent();
-    loadUserData();
+    await loadUserData();
   }
-}
-
-
-function startDemo() {
-  demoMode = true;
-
-  // Show dashboard without authentication
-  showContent();
-
-  // Demo banner
-  if (demoBanner) {
-    demoBanner.style.display = "block";
-    demoBanner.textContent = t("demoBanner");
-  }
-
-  // Build demo data
-  const now = new Date();
-  const plusHours = (h) => new Date(now.getTime() + h * 60 * 60 * 1000).toISOString();
-
-  const demoProfile = {
-    displayName: t("demoUserName"),
-    mail: "demo.user@example.com",
-    userPrincipalName: "demo.user@example.com",
-    jobTitle: t("demoJobTitle"),
-    officeLocation: t("demoLocation")
-  };
-
-  const demoEmails = [
-    {
-      subject: t("demoMailSubject1"),
-      from: { emailAddress: { name: "Contoso HR" } },
-      receivedDateTime: plusHours(-2),
-      isRead: false
-    },
-    {
-      subject: t("demoMailSubject2"),
-      from: { emailAddress: { name: "Microsoft 365" } },
-      receivedDateTime: plusHours(-6),
-      isRead: true
-    },
-    {
-      subject: t("demoMailSubject3"),
-      from: { emailAddress: { name: "Team Lead" } },
-      receivedDateTime: plusHours(-20),
-      isRead: true
-    }
-  ];
-
-  const demoEvents = [
-    {
-      subject: t("demoEvent1"),
-      start: { dateTime: plusHours(6) },
-      end: { dateTime: plusHours(7) },
-      location: { displayName: t("demoEventLoc1") }
-    },
-    {
-      subject: t("demoEvent2"),
-      start: { dateTime: plusHours(30) },
-      end: { dateTime: plusHours(31) },
-      location: { displayName: t("demoEventLoc2") }
-    }
-  ];
-
-  const demoFiles = [
-    { name: "CV_Vidal_Renao.pdf", lastModifiedDateTime: plusHours(-12), size: 352000 },
-    { name: "Azure-Arc-Lab-Notes.docx", lastModifiedDateTime: plusHours(-28), size: 118000 },
-    { name: "Network-Diagram.png", lastModifiedDateTime: plusHours(-40), size: 890000 }
-  ];
-
-  state.profile = demoProfile;
-  state.emails = demoEmails;
-  state.events = demoEvents;
-  state.files = demoFiles;
-
-  applyTranslations();
-  rerenderAll();
 }
 
 async function login() {
   if (IS_GITHUB_PAGES) {
-    // On GitHub Pages we run in demo mode to avoid redirect URI issues.
+    // Pages: demo mode by default.
     startDemo();
     return;
   }
+
   try {
-    const loginResponse = await msalInstance.loginPopup(loginRequest);
-    console.log("Login successful:", loginResponse);
+    await msalInstance.loginPopup(loginRequest);
+    demoMode = false;
+    if (demoBanner) demoBanner.style.display = "none";
+    applyTranslations();
     showContent();
-    loadUserData();
+    await loadUserData();
   } catch (error) {
     console.error("Login error:", error);
     alert(`${t("errLogin")}: ${error.message}`);
@@ -439,45 +477,49 @@ async function login() {
 }
 
 function logout() {
-  demoMode = false;
-  if (demoBanner) demoBanner.style.display = "none";
-  const currentAccounts = msalInstance.getAllAccounts();
-  if (currentAccounts.length > 0) {
-    msalInstance.logoutPopup({ account: currentAccounts[0] });
+  // Demo mode: just reset UI
+  if (demoMode) {
+    demoMode = false;
+    if (demoBanner) demoBanner.style.display = "none";
+    Object.assign(state, { profile: null, emails: null, events: null, files: null, _lastUpdated: null });
+    if (userName) userName.textContent = "";
+    applyTranslations();
+    hideContent();
+    renderStats();
+    return;
   }
 
-  // reset state
-  state.profile = null;
-  state.emails = null;
-  state.events = null;
-  state.files = null;
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length > 0) {
+    msalInstance.logoutPopup({ account: accounts[0] });
+  }
 
+  Object.assign(state, { profile: null, emails: null, events: null, files: null, _lastUpdated: null });
   if (userName) userName.textContent = "";
   applyTranslations();
   hideContent();
+  renderStats();
 }
 
 async function getAccessToken() {
-  const currentAccounts = msalInstance.getAllAccounts();
-  if (currentAccounts.length === 0) {
-    throw new Error(t("noAuthUser"));
-  }
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length === 0) throw new Error(t("noAuthUser"));
 
-  const request = { scopes: loginRequest.scopes, account: currentAccounts[0] };
+  const request = { scopes: loginRequest.scopes, account: accounts[0] };
 
   try {
     const response = await msalInstance.acquireTokenSilent(request);
     return response.accessToken;
   } catch (error) {
-    console.log("Silent token acquisition failed, acquiring token using popup");
     const response = await msalInstance.acquireTokenPopup(request);
     return response.accessToken;
   }
 }
 
-// ---- Data loading ----
+// -------------------- Data loading --------------------
 async function loadUserData() {
   if (demoMode) return;
+
   try {
     const accessToken = await getAccessToken();
 
@@ -487,6 +529,9 @@ async function loadUserData() {
       loadCalendar(accessToken),
       loadFiles(accessToken)
     ]);
+
+    state._lastUpdated = new Date().toISOString();
+    renderStats();
   } catch (error) {
     console.error("Error loading user data:", error);
     alert(`${t("errLoad")}: ${error.message}`);
@@ -498,15 +543,13 @@ async function loadProfile(accessToken) {
     const response = await fetch("https://graph.microsoft.com/v1.0/me", {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
-
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-    const profile = await response.json();
-    state.profile = profile;
-    renderProfile(profile);
+    state.profile = await response.json();
+    renderProfile(state.profile);
   } catch (error) {
     console.error("Error loading profile:", error);
-    profileSection.innerHTML = `<p class="error">${t("errProfile")}</p>`;
+    if (profileSection) profileSection.innerHTML = `<p class="error">${t("errProfile")}</p>`;
   }
 }
 
@@ -514,6 +557,7 @@ function renderProfile(profile) {
   const displayName = profile.displayName || t("userFallback");
   if (userName) userName.textContent = displayName;
 
+  if (!profileSection) return;
   profileSection.innerHTML = `
     <div class="profile-info">
       <p><strong>${t("name")}:</strong> ${profile.displayName || t("na")}</p>
@@ -530,31 +574,30 @@ async function loadEmails(accessToken) {
       "https://graph.microsoft.com/v1.0/me/messages?$top=5&$select=subject,from,receivedDateTime,isRead",
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
-
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
-    const emails = data.value || [];
-    state.emails = emails;
-    renderEmails(emails);
+    state.emails = data.value || [];
+    renderEmails(state.emails);
   } catch (error) {
     console.error("Error loading emails:", error);
-    emailSection.innerHTML = `<p class="error">${t("errEmails")}</p>`;
+    if (emailSection) emailSection.innerHTML = `<p class="error">${t("errEmails")}</p>`;
   }
 }
 
 function renderEmails(emails) {
+  if (!emailSection) return;
   if (!emails || emails.length === 0) {
     emailSection.innerHTML = `<p>${t("noEmails")}</p>`;
     return;
   }
 
   const locale = getLocale();
-  let emailHTML = '<div class="email-list">';
-  emails.forEach((email) => {
+  let html = '<div class="email-list">';
+  emails.forEach(email => {
     const date = new Date(email.receivedDateTime).toLocaleString(locale);
     const readClass = email.isRead ? "read" : "unread";
-    emailHTML += `
+    html += `
       <div class="email-item ${readClass}">
         <div class="email-subject">${email.subject || t("noSubject")}</div>
         <div class="email-from">${t("from")}: ${email.from?.emailAddress?.name || t("unknown")}</div>
@@ -562,8 +605,10 @@ function renderEmails(emails) {
       </div>
     `;
   });
-  emailHTML += "</div>";
-  emailSection.innerHTML = emailHTML;
+  html += "</div>";
+  emailSection.innerHTML = html;
+
+  renderStats(); // update unread count
 }
 
 async function loadCalendar(accessToken) {
@@ -575,43 +620,41 @@ async function loadCalendar(accessToken) {
       `https://graph.microsoft.com/v1.0/me/calendarView?startDateTime=${now}&endDateTime=${end}&$top=5&$select=subject,start,end,location`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
-
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
-    const events = data.value || [];
-    state.events = events;
-    renderCalendar(events);
+    state.events = data.value || [];
+    renderCalendar(state.events);
   } catch (error) {
     console.error("Error loading calendar:", error);
-    calendarSection.innerHTML = `<p class="error">${t("errCalendar")}</p>`;
+    if (calendarSection) calendarSection.innerHTML = `<p class="error">${t("errCalendar")}</p>`;
   }
 }
 
 function renderCalendar(events) {
+  if (!calendarSection) return;
   if (!events || events.length === 0) {
     calendarSection.innerHTML = `<p>${t("noEvents7")}</p>`;
+    renderStats();
     return;
   }
 
   const locale = getLocale();
-  let calendarHTML = '<div class="calendar-list">';
-  events.forEach((event) => {
+  let html = '<div class="calendar-list">';
+  events.forEach(event => {
     const startDate = new Date(event.start.dateTime).toLocaleString(locale);
-    calendarHTML += `
+    html += `
       <div class="calendar-item">
         <div class="event-subject">${event.subject || t("noTitle")}</div>
         <div class="event-time">📅 ${startDate}</div>
-        ${
-          event.location?.displayName
-            ? `<div class="event-location">📍 ${event.location.displayName}</div>`
-            : ""
-        }
+        ${event.location?.displayName ? `<div class="event-location">📍 ${event.location.displayName}</div>` : ""}
       </div>
     `;
   });
-  calendarHTML += "</div>";
-  calendarSection.innerHTML = calendarHTML;
+  html += "</div>";
+  calendarSection.innerHTML = html;
+
+  renderStats();
 }
 
 async function loadFiles(accessToken) {
@@ -619,33 +662,32 @@ async function loadFiles(accessToken) {
     const response = await fetch("https://graph.microsoft.com/v1.0/me/drive/recent?$top=5", {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
-
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
-    const files = data.value || [];
-    state.files = files;
-    renderFiles(files);
+    state.files = data.value || [];
+    renderFiles(state.files);
   } catch (error) {
     console.error("Error loading files:", error);
-    filesSection.innerHTML = `<p class="error">${t("errFiles")}</p>`;
+    if (filesSection) filesSection.innerHTML = `<p class="error">${t("errFiles")}</p>`;
   }
 }
 
 function renderFiles(files) {
+  if (!filesSection) return;
   if (!files || files.length === 0) {
     filesSection.innerHTML = `<p>${t("noFiles")}</p>`;
+    renderStats();
     return;
   }
 
   const locale = getLocale();
-  let filesHTML = '<div class="files-list">';
-  files.forEach((file) => {
+  let html = '<div class="files-list">';
+  files.forEach(file => {
     const modifiedDate = new Date(file.lastModifiedDateTime).toLocaleString(locale);
     const size = formatFileSize(file.size);
     const icon = getFileIcon(file.name);
-
-    filesHTML += `
+    html += `
       <div class="file-item">
         <div class="file-icon">${icon}</div>
         <div class="file-info">
@@ -655,11 +697,58 @@ function renderFiles(files) {
       </div>
     `;
   });
-  filesHTML += "</div>";
-  filesSection.innerHTML = filesHTML;
+  html += "</div>";
+  filesSection.innerHTML = html;
+
+  renderStats();
 }
 
-// ---- Utilities ----
+// -------------------- Demo mode --------------------
+function startDemo() {
+  demoMode = true;
+  showContent();
+
+  if (demoBanner) {
+    demoBanner.style.display = "block";
+    demoBanner.textContent = t("demoBanner");
+  }
+
+  const now = new Date();
+  const plusHours = (h) => new Date(now.getTime() + h * 60 * 60 * 1000).toISOString();
+
+  state.profile = {
+    displayName: t("demoUserName"),
+    mail: "demo.user@example.com",
+    userPrincipalName: "demo.user@example.com",
+    jobTitle: t("demoJobTitle"),
+    officeLocation: t("demoLocation")
+  };
+
+  state.emails = [
+    { subject: t("demoMailSubject1"), from: { emailAddress: { name: "Contoso HR" } }, receivedDateTime: plusHours(-2), isRead: false },
+    { subject: t("demoMailSubject2"), from: { emailAddress: { name: "Microsoft 365" } }, receivedDateTime: plusHours(-6), isRead: true },
+    { subject: t("demoMailSubject3"), from: { emailAddress: { name: "Team Lead" } }, receivedDateTime: plusHours(-20), isRead: true }
+  ];
+
+  state.events = [
+    { subject: t("demoEvent1"), start: { dateTime: plusHours(6) }, end: { dateTime: plusHours(7) }, location: { displayName: t("demoEventLoc1") } },
+    { subject: t("demoEvent2"), start: { dateTime: plusHours(30) }, end: { dateTime: plusHours(31) }, location: { displayName: t("demoEventLoc2") } }
+  ];
+
+  state.files = [
+    { name: "CV_Vidal_Renao.pdf", lastModifiedDateTime: plusHours(-12), size: 352000 },
+    { name: "Azure-Arc-Lab-Notes.docx", lastModifiedDateTime: plusHours(-28), size: 118000 },
+    { name: "Network-Diagram.png", lastModifiedDateTime: plusHours(-40), size: 890000 }
+  ];
+
+  state._lastUpdated = new Date().toISOString();
+
+  applyTranslations();
+  rerenderAll();
+  renderStats();
+}
+
+// -------------------- Utilities --------------------
 function formatFileSize(bytes) {
   if (!bytes || bytes === 0) return "0 Bytes";
   const k = 1024;
@@ -669,7 +758,7 @@ function formatFileSize(bytes) {
 }
 
 function getFileIcon(filename) {
-  const ext = filename.split(".").pop().toLowerCase();
+  const ext = String(filename || "").split(".").pop().toLowerCase();
   const icons = {
     pdf: "📄",
     doc: "📝",
